@@ -2,14 +2,19 @@
 
 "use client"
 
-import { useEffect, useRef, useState } from 'react'
-import axios from 'axios'
+import { FormEvent, useEffect, useRef, useState } from 'react'
+import axios, { AxiosError } from 'axios'
 import styles from '../styles/Home.module.css'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { defaultBlacklist } from '@/lib/utils'
+
+interface TreeItem {
+  type: string;
+  path: string;
+}
 
 const githubApi = axios.create({
   baseURL: 'https://api.github.com',
@@ -35,7 +40,7 @@ githubApi.interceptors.response.use(
   }
 );
 
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 export default function Home() {
   const [repoUrl, setRepoUrl] = useState('')
@@ -48,7 +53,7 @@ export default function Home() {
   const [progress, setProgress] = useState('')
   const blacklistRef = useRef(null)
   const whitelistRef = useRef(null)
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     setIsLoading(true)
     setError('')
@@ -83,7 +88,7 @@ export default function Home() {
         const blacklistPatterns = blacklist.split('\n').map(item => item.trim()).filter(Boolean)
         const whitelistPatterns = whitelist.split('\n').map(item => item.trim()).filter(Boolean)
 
-        const isMatch = (path, patterns) => {
+        const isMatch = (path: string, patterns: string[]) => {
           return patterns.some(pattern => {
             // 将模式转换为正则表达式
             const regexPattern = pattern
@@ -101,7 +106,7 @@ export default function Home() {
           })
         }
 
-        const filesToProcess = tree.filter(item => {
+        const filesToProcess = tree.filter((item: TreeItem) => {
           if (mode === 'minimal') {
             return item.type === 'blob' &&
               isMatch(item.path, whitelistPatterns) &&
@@ -138,16 +143,21 @@ export default function Home() {
               await delay(1000); // 等待1秒
 
               fileContent = fileResponse.data
-            } catch (fileError) {
+            } catch (error) {
+              const fileError = error as AxiosError;
               console.error(`Error fetching ${file.path} (Attempt ${retryCount + 1}):`, fileError)
               lastError = fileError
               retryCount++
 
-              if (fileError.response && (fileError.response.status === 403 || fileError.response.status === 429)) {
-                const retryAfter = fileError.response.headers['retry-after'] || 60;
-                await delay(retryAfter * 1000);
+              if (axios.isAxiosError(fileError) && fileError.response) {
+                if (fileError.response.status === 403 || fileError.response.status === 429) {
+                  const retryAfter = fileError.response.headers['retry-after'] || '60';
+                  await delay(parseInt(retryAfter) * 1000);
+                } else {
+                  await delay(5000); // 其他错误等待5秒后重试
+                }
               } else {
-                await delay(5000); // 其他错误等待5秒后重试
+                await delay(5000); // 非 Axios 错误等待5秒后重试
               }
             }
           }
@@ -156,7 +166,7 @@ export default function Home() {
             concatenatedContent += `// ${file.path}\n${fileContent}\n\n`
           } else {
             console.error(`Failed to fetch ${file.path} after 3 attempts. Last error:`, lastError)
-            concatenatedContent += `// Error fetching ${file.path} after 3 attempts. Last error: ${lastError.message}\n\n`
+            concatenatedContent += `// Error fetching ${file.path} after 3 attempts. Last error: ${lastError?.message}\n\n`
           }
         }
 
@@ -166,17 +176,22 @@ export default function Home() {
       } catch (error) {
         console.error('Error:', error)
         retryCount++
-        if (error.response && (error.response.status === 403 || error.response.status === 429)) {
-          const retryAfter = error.response.headers['retry-after'] || 60;
-          setProgress(`API rate limit exceeded. Waiting ${retryAfter} seconds before retry ${retryCount}...`);
-          await delay(retryAfter * 1000);
+        if (axios.isAxiosError(error) && error.response) {
+          if (error.response.status === 403 || error.response.status === 429) {
+            const retryAfter = error.response.headers['retry-after'] || '60';
+            setProgress(`API rate limit exceeded. Waiting ${retryAfter} seconds before retry ${retryCount}...`);
+            await delay(parseInt(retryAfter) * 1000);
+          } else {
+            setProgress(`Error occurred. Retrying in 5 seconds... (Attempt ${retryCount} of ${maxRetries})`);
+            await delay(5000);
+          }
         } else {
           setProgress(`Error occurred. Retrying in 5 seconds... (Attempt ${retryCount} of ${maxRetries})`);
           await delay(5000);
         }
 
         if (retryCount === maxRetries) {
-          setError(`Failed after ${maxRetries} attempts. Last error: ${error.message}`);
+          setError(`Failed after ${maxRetries} attempts. Last error: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }
       }
     }
@@ -201,7 +216,7 @@ export default function Home() {
     URL.revokeObjectURL(url)
   }
 
-  const adjustTextareaHeight = (textarea) => {
+  const adjustTextareaHeight = (textarea: HTMLTextAreaElement | null ) => {
     if (textarea) {
       textarea.style.height = 'auto'
       textarea.style.height = `${textarea.scrollHeight}px`
@@ -216,12 +231,12 @@ export default function Home() {
     adjustTextareaHeight(whitelistRef.current)
   }, [whitelist])
 
-  const handleBlacklistChange = (e) => {
+  const handleBlacklistChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setBlacklist(e.target.value)
     adjustTextareaHeight(e.target)
   }
 
-  const handleWhitelistChange = (e) => {
+  const handleWhitelistChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setWhitelist(e.target.value)
     adjustTextareaHeight(e.target)
   }
