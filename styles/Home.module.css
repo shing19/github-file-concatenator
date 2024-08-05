@@ -1,0 +1,36 @@
+.container {
+    padding: 2rem;
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .input, .textarea, .select {
+    padding: 0.5rem;
+    font-size: 1rem;
+  }
+
+  .textarea {
+    resize: none;
+    min-height: 100px; /* 或其他合适的最小高度 */
+    max-height: 300px;
+  }
+
+  .button {
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    cursor: pointer;
+  }
+  
+  .output {
+    margin-top: 2rem;
+    border: 1px solid #ccc;
+    padding: 1rem;
+    white-space: pre-wrap;
+    max-height: 500px;
+  }
