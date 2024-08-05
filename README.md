@@ -1,4 +1,4 @@
-# Git Code Extractor / Git 代码提取器
+# Github File Concatenator / Github 代码合并器
 
 This is a Next.js-based frontend project, utilizing Shadcn and Tailwind CSS for styling. The project aims to read Git repositories, extract and compile important code snippets for large language models to understand the project structure and functionality.
 
