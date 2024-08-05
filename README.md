@@ -1,36 +1,22 @@
-This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# Git Code Extractor / Git 代码提取器
 
-## Getting Started
+This is a Next.js-based frontend project, utilizing Shadcn and Tailwind CSS for styling. The project aims to read Git repositories, extract and compile important code snippets for large language models to understand the project structure and functionality.
 
-First, run the development server:
+这是一个基于 Next.js 的前端项目，使用 Shadcn 进行样式设计。该项目旨在读取 Git 仓库，提取并整理重要代码片段，以便于大语言模型理解项目结构和功能。
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Tech Stack / 技术栈
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- Next.js
+- Shadcn
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Main Features / 主要功能
 
-This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
+- Read Git repositories / 读取 Git 仓库
+- Extract important code snippets / 提取重要代码片段
+- Merge code to export / 合并代码输出
+- 
+## Note / 注意
 
-## Learn More
+This project is primarily for code analysis and understanding, and is not recommended for use in production environments.
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
+本项目主要用于代码分析和理解，不建议在生产环境中使用。
